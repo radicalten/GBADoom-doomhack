@@ -23,12 +23,18 @@ Can either recompile with the REG_WAITCNT = 0xB645;
 Or use a Hexeditor such as Hex Fiend, search for 4000204 and modify and replace 46DA to the right of it with B645
 
 
-Note: bits are read to right to left:
+Note: bits are read to right to left: 0x46DA DoomGBA 2,1 default, 0xB645 openagbfirm profi200 3,1 recommendation, 0x4317 GBAtek 3,1 recommendation, 0x45B7 all 3,1 WarioWare GBAtek
 REG_WAITCNT = 0x46DA; // 0100011011011010 0-1 bit = 10 (0..3 = 4,3,2,8 cycles) = 2 cycles, position 3. 2-3 bit 00 = 2 cycles, position 3, 
 REG_WAITCNT = 0xB645; // 1011011001000101 0-1 bit = 01 (0..3 = 4,3,2,8 cycles) = 3 cycles, position 2. 2-3 bit 01 (0..3 = 4,3,2,8 cycles) = 3 cycles, position 2
+REG_WAITCNT = 0x4317; // 0100001100010111 0-1 bit = 01 (0..3 = 4,3,2,8 cycles) = 3 cycles, position 2. 2-3 bit 01 (0..3 = 4,3,2,8 cycles) = 3 cycles, position 2
+REG_WAITCNT = 0x45B7; // 0100010110110111
                       // 15.............0
 
+
 https://problemkaputt.de/gbatek-gba-system-control.htm
+https://www.problemkaputt.de/gbatek.htm#gbacartridges
+"Wario uses WAITCNT=45B7h (SRAM=8clks, WS0/WS1/WS2=3,1clks, Prefetch=On, PHI=Off)."
+
 4000204h - WAITCNT - Waitstate Control (R/W)
 This register is used to configure game pak access timings. The game pak ROM is mirrored to three address regions at 08000000h, 0A000000h, and 0C000000h, these areas are called Wait State 0-2. Different access timings may be assigned to each area (this might be useful in case that a game pak contains several ROM chips with different access times each).
 
@@ -173,3 +179,79 @@ Note: One cycle equals approx. 59.59ns (ie. 16.78MHz clock).
 
 
 extracted from no$gba v3.06 - homepage - patreon - whole doc htm/txt - copyright 2025 martin korth (nocash) 
+
+
+======
+
+https://www.problemkaputt.de/gbatek.htm#gbacartridges
+GBA Cartridge ROM
+
+ROM Size
+The games F-ZERO and Super Mario Advance use ROMs of 4 MBytes each. Zelda uses 8 MBytes. Not sure if other sizes are manufactured.
+
+ROM Waitstates
+The GBA starts the cartridge with 4,2 waitstates (N,S) and prefetch disabled. The program may change these settings by writing to WAITCNT, the games F-ZERO and Super Mario Advance use 3,1 waitstates (N,S) each, with prefetch enabled.
+Third-party flashcards are reportedly running unstable with these settings. Also, prefetch and shorter waitstates are allowing to read more data and opcodes from ROM is less time, the downside is that it increases the power consumption.
+).
+
+==
+GBA Cart Gyro Sensor
+
+Warioware Twisted (Z-Axis Gyro Sensor, plus Rumble)
+
+Wario-Type (Z-Axis)
+Uses a single-axis sensor, which senses rotation around the Z-axis. The sensor is connected to an analogue-in, serial-out ADC chip, which is accessed via lower 3 bits of the GPIO,
+GBA Cart I/O Port (GPIO)
+The four I/O Lines are connected like so,
+
+  GPIO.Bit0 (W) Start Conversion
+  GPIO.Bit1 (W) Serial Clock
+  GPIO.Bit2 (R) Serial Data
+  GPIO.Bit3 (W) Used for Rumble (not gyro related)
+
+There should be at least <three sequential 32bit ARM opcodes executed in WS0 region> between the STRH opcodes which toggle the CLK signal. Wario uses WAITCNT=45B7h (SRAM=8clks, WS0/WS1/WS2=3,1clks, Prefetch=On, PHI=Off).
+The data stream consists of: 4 dummy bits (usually zero), followed by 12 data bits, followed by endless unused bits (usually zero).
+
+ read_gyro:
+  mov  r1,8000000h      ;-cartridge base address
+  mov  r0,01h           ;\enable R/W access
+  strh r0,[r1,0c8h]     ;/
+  mov  r0,0bh           ;\init direction (gpio2=input, others=output)
+  strh r0,[r1,0c6h]     ;/
+  ldrh r2,[r1,0c4h]     ;-get current state (for keeping gpio3=rumble)
+  orr  r2,3                     ;\
+  strh r2,[r1,0c4h] ;gpio0=1    ; start ADC conversion
+  bic  r2,1                     ;
+  strh r2,[r1,0c4h] ;gpio0=0    ;/
+  mov  r0,00010000h ;stop-bit           ;\
+  bic  r2,2                             ;
+ @@lop:                                 ;
+  ldrh r3,[r1,0c4h] ;get gpio2=data     ; read 16 bits
+  strh r2,[r1,0c4h] ;gpio1=0=clk=low    ; (4 dummy bits, plus 12 data bits)
+  movs r3,r3,lsr 3  ;gpio2 to cy=data   ;
+  adcs r0,r0,r0     ;merge data, cy=done;
+  orr  r3,r2,2      ;set bit1 and delay ;
+  strh r3,[r1,0c4h] ;gpio1=1=clk=high   ;
+  bcc  @@lop                            ;/
+  bic  r0,0f000h                 ;-strip upper 4 dummy bits (isolate 12bit adc)
+  bx   lr
+
+Example values (may vary on different carts, battery charge, temperature, etc):
+
+  354h  rotated in anti-clockwise direction (shock-speed)
+  64Dh  rotated in anti-clockwise direction (normal fast)
+  6A3h  rotated in anti-clockwise direction (slow)
+  6C0h  no rotation                         (stopped)
+  6DAh  rotation in clockwise direction     (slow)
+  73Ah  rotation in clockwise direction     (normal fast)
+  9E3h  rotation in clockwise direction     (shock-speed)
+
+For detection, values 000h and FFFh would indicate that there's no sensor.
+The Z-axis always points into same direction; no matter of frontloading or backloading cartridge slots.
+Thanks to Momo Vampire for contributing a Wario cartridge.
+
+X/Y/Z-Axes
+X-Axis and Y-Axis are meant to be following the screens X and Y coordinates, so the Z-Axis would point into the screens depth direction.
+
+DSi Cameras
+DSi consoles can mis-use the built-in cameras as Gyro sensor (as done by the System Flaw DSi game).
