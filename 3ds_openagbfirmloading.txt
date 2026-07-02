@@ -2,6 +2,9 @@
 How to get GBADoom to run on 3ds openagbfirm:
 Issue: Currently GBADoom and similar homebrew GBA games boot to white screen on 3DS openagbfirm. 
 Solution: 4000204h - WAITCNT - Waitstate Control (R/W) must be set to 3,1
+3,1 meaning: 16-bit: 00000000 00000000
+3: 0-1   SRAM Wait Control (0..3 = 4,3,2,8 cycles) means 01 is 3 cycles. 00000000 00000001 // "ROM wait cycles on first access must be 3"
+1: 2-3   Wait State 0 First Access  (0..3 = 4,3,2,8 cycles) means 00000000 00000001 
 
 By default GBADoom sets:
 GBADoom/source/i_system_gba.cpp
@@ -12,6 +15,13 @@ REG_WAITCNT = 0x46DA; // 0100011011011010
 Fix to run on openagbfirm:
 REG_WAITCNT = 0xB645; // 1011011001000101
                       
+Can either recompile with the REG_WAITCNT = 0xB645;
+Or use a Hexeditor such as Hex Fiend, search for 4000204 and modify and replace 46DA to the right of it with B645
+
+
+
+
+
 
 Note: bits are read right to left:
 REG_WAITCNT = 0x46DA; // 0100011011011010
