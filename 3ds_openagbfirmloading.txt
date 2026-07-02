@@ -24,10 +24,10 @@ Or use a Hexeditor such as Hex Fiend, search for 4000204 and modify and replace 
 
 
 
-Note: bits are read right to left:
+Note: GBA ARM7 little endian bits are read to left to right:
 REG_WAITCNT = 0x46DA; // 0100011011011010
 REG_WAITCNT = 0xB645; // 1011011001000101
-                      // 15.............0
+                      // 0.............15
 
 https://problemkaputt.de/gbatek-gba-system-control.htm
 4000204h - WAITCNT - Waitstate Control (R/W)
