@@ -6,8 +6,8 @@ REG_WAITCNT = 0x46DA; // 0100011011011010
 
 Fix to run on openagbfirm:
 REG_WAITCNT = 0xB645; // 1011011001000101
-Or use a Hex editor such as Hex Fiend, search for 4000204 and modify and replace 46DA to the right of it with B645. 
-
+And recompile. 
+Or use a Hex editor such as Hex Fiend open the GBADoom.gba rom, search for 4000204 and modify and replace 46DA to the right of it with B645 and save. 
 
 Sources:
 https://problemkaputt.de/gbatek-gba-system-control.htm
