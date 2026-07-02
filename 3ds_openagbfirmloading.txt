@@ -5,11 +5,13 @@ GBADoom/source/i_system_gba.cpp
 REG_WAITCNT = 0x46DA; // 0100011011011010
 
 Fix to run on openagbfirm:
-REG_WAITCNT = 0xB645; // 1011011001000101
+REG_WAITCNT = 0xB645; // 0100010110110110
 And recompile. 
+Because Hexeditor is little endian: 0x45B6; = 0100010110110110 which is exactly the 3,3,1 cycle pattern required. 
 Or use a Hex editor such as Hex Fiend open the GBADoom.gba rom, search for go to offset 0x7E20 ((32288 in decimal) and modify and replace 46DA to the right of it with B645 and save. 
 
 *actually I replaced 46DA at offset 0x7D24, the REG_WAITCNT was at 0x7D20 with 04020004 for GBADoom
+Hexfiend unsigned int, little endian and because it is little endian it is actually written DA46)
 
 Sources:
 https://problemkaputt.de/gbatek-gba-system-control.htm
@@ -79,6 +81,7 @@ REG_WAITCNT = 0x46DA; // 0100011011011010 0-1 bit = 10 (0..3 = 4,3,2,8 cycles) =
 REG_WAITCNT = 0xB645; // 1011011001000101 0-1 bit = 01 (0..3 = 4,3,2,8 cycles) = 3 cycles, position 2. 2-3 bit 01 (0..3 = 4,3,2,8 cycles) = 3 cycles, position 2
 REG_WAITCNT = 0x4317; // 0100001100010111 0-1 bit = 11 (0..3 = 4,3,2,8 cycles) = 8 cycles, position 2. 2-3 bit 01 (0..3 = 4,3,2,8 cycles) = 3 cycles, position 2, 4 bit 1 cycle, position 2
 REG_WAITCNT = 0x45B7; // 0100010110110111 0-1 bit = 11 (0..3 = 4,3,2,8 cycles) = 8 cycles, position 2. 2-3 bit 01 (0..3 = 4,3,2,8 cycles) = 3 cycles, position 2, 4 bit 1 cycle, position 2
+REG_WAITCNT = 0x45B6; // 0100010110110110 0-1 bit = 01 (0..3 = 4,3,2,8 cycles) = 3 cycles, position 2. 2-3 bit 01 (0..3 = 4,3,2,8 cycles) = 3 cycles, position 2, 4 bit 1 cycle, position 2
                       // 15.............0
 
 
