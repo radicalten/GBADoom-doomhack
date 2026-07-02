@@ -1,0 +1,28 @@
+How to get GBADoom to run on 3ds openagbfirm:
+
+
+
+====
+Metal Slug Advance (can't save) #164 Feb 21, 2024
+https://github.com/profi200/open_agb_firm/issues/164
+So i was playing games like warioland 4, max payne, metroid fusion etc. They seemed to save ok, but when i try to save in metal slug advance it says save aborted. I patched the rom with sram patcher (gbata). But it gave the same error again so is there any solves?( Game plays just fine but wont save at all) - I also realized u cant save in doom too ( can it be a piracy protection? 🤦‍♂️) or agb firm cant save 32mb games? My sd card cluster size is 32kb btw
+
+Do not use SRAM patches. It doesn't work and doesn't solve most issues. Make sure the hashes of the ROMs that do not work match known good dumps. Also make sure you use the latest release and you overwrote the save type database on your SD card.
+
+I don't know why Doom still doesn't save. As said make sure to use the latest release and overwrite the save type database too (when extracting merge files and replace). I will test this game later but i'm pretty sure it works.
+
+I checked regarding Doom (0154 - Doom (USA, Europe)) and it saves fine. I had to replace the save type database on my end however.
+
+GBADoom White Screen #111 May 11, 2023
+https://github.com/profi200/open_agb_firm/issues/111
+Hi, I noticed that DoomHacks GBADoom does not run and just displays a white screen.
+
+Which save type does this game use? SRAM? You could try the latest nightly build at the actions tab above and override the save type. Maybe the game will start working.
+
+The reason the game is freezing is it uses the fastest possible ROM wait states which is not supported by the hardware. ROM wait cycles on first access must be 3 but this game sets it to 2.
+https://problemkaputt.de/gbatek-gba-system-control.htm
+
+You can ask the dev to add detection for slow flashcarts/hardware similar to how OpenLara did it here: https://github.com/XProger/OpenLara/blob/master/src/platform/gba/checkROM.cpp
+
+As a temporary workaround open the ROM in a hex editor, go to offset 0x7E20 and patch bytes DA46 to B645. The game runs fine but it may be slower than intended (looked fine for me).
+======
