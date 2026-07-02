@@ -1,3 +1,50 @@
+Summary 7-2-26: Converting GBADoom to load on 3ds openagbfirm
+The reason it won't load is because waitstate control is set to a 2,1 config when 3,1 is required for 3ds hardware. 
+GBADoom/source/i_system_gba.cpp
+#define REG_WAITCNT	*((vu16 *)(0x4000204))
+REG_WAITCNT = 0x46DA; // 0100011011011010
+
+Fix to run on openagbfirm:
+REG_WAITCNT = 0xB645; // 1011011001000101
+Or use a Hex editor such as Hex Fiend, search for 4000204 and modify and replace 46DA to the right of it with B645. 
+
+
+Sources:
+https://problemkaputt.de/gbatek-gba-system-control.htm
+https://www.problemkaputt.de/gbatek.htm#gbacartridges
+"Wario uses WAITCNT=45B7h (SRAM=8clks, WS0/WS1/WS2=3,1clks, Prefetch=On, PHI=Off)."
+
+4000204h - WAITCNT - Waitstate Control (R/W)
+This register is used to configure game pak access timings. The game pak ROM is mirrored to three address regions at 08000000h, 0A000000h, and 0C000000h, these areas are called Wait State 0-2. Different access timings may be assigned to each area (this might be useful in case that a game pak contains several ROM chips with different access times each).
+
+  Bit   Expl.
+  0-1   SRAM Wait Control          (0..3 = 4,3,2,8 cycles)
+  2-3   Wait State 0 First Access  (0..3 = 4,3,2,8 cycles)
+  4     Wait State 0 Second Access (0..1 = 2,1 cycles)
+  5-6   Wait State 1 First Access  (0..3 = 4,3,2,8 cycles)
+  7     Wait State 1 Second Access (0..1 = 4,1 cycles; unlike above WS0)
+  8-9   Wait State 2 First Access  (0..3 = 4,3,2,8 cycles)
+  10    Wait State 2 Second Access (0..1 = 8,1 cycles; unlike above WS0,WS1)
+  11-12 PHI Terminal Output        (0..3 = Disable, 4.19MHz, 8.38MHz, 16.78MHz)
+  13    Not used
+  14    Game Pak Prefetch Buffer (Pipe) (0=Disable, 1=Enable)
+  15    Game Pak Type Flag  (Read Only) (0=GBA, 1=CGB) (IN35 signal)
+  16-31 Not used
+
+GBADoom White Screen #111 May 11, 2023
+https://github.com/profi200/open_agb_firm/issues/111
+Hi, I noticed that DoomHacks GBADoom does not run and just displays a white screen.
+
+Which save type does this game use? SRAM? You could try the latest nightly build at the actions tab above and override the save type. Maybe the game will start working.
+
+The reason the game is freezing is it uses the fastest possible ROM wait states which is not supported by the hardware. ROM wait cycles on first access must be 3 but this game sets it to 2.
+https://problemkaputt.de/gbatek-gba-system-control.htm
+
+You can ask the dev to add detection for slow flashcarts/hardware similar to how OpenLara did it here: https://github.com/XProger/OpenLara/blob/master/src/platform/gba/checkROM.cpp
+
+As a temporary workaround open the ROM in a hex editor, go to offset 0x7E20 and patch bytes DA46 to B645. The game runs fine but it may be slower than intended (looked fine for me).
+
+
 7-2-26
 How to get GBADoom to run on 3ds openagbfirm:
 Issue: Currently GBADoom and similar homebrew GBA games boot to white screen on 3DS openagbfirm. 
