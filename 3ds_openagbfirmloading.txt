@@ -3,6 +3,15 @@ How to get GBADoom to run on 3ds openagbfirm:
 
 
 ====
+Some GBA homebrews do not work with open_agb_firm #262 Jan 2, 2026
+https://github.com/profi200/open_agb_firm/issues/262
+I wanted to check out open_agb_firm using gba_net_boot for my GBA homebrew development, but my ROMs (and others) do not run. These run in all emulators I use and on a real AGB with an EZFlash Omega flash cart. I can select the ROM, the GBA BIOS logo animation plays, then I just see a white screen and nothing happens.
+What makes them incompatible with open_agb_firm?
+video_bbb.zip
+StSoundGBA.zip
+
+This seems to be due 2,1 ROM wait states being set, as mentioned in #111 . Setting 3,1 wait states makes the ROMs work.
+
 Metal Slug Advance (can't save) #164 Feb 21, 2024
 https://github.com/profi200/open_agb_firm/issues/164
 So i was playing games like warioland 4, max payne, metroid fusion etc. They seemed to save ok, but when i try to save in metal slug advance it says save aborted. I patched the rom with sram patcher (gbata). But it gave the same error again so is there any solves?( Game plays just fine but wont save at all) - I also realized u cant save in doom too ( can it be a piracy protection? 🤦‍♂️) or agb firm cant save 32mb games? My sd card cluster size is 32kb btw
