@@ -1,12 +1,40 @@
+7-2-26
 How to get GBADoom to run on 3ds openagbfirm:
 Issue: Currently GBADoom and similar homebrew GBA games boot to white screen on 3DS openagbfirm. 
 Solution: 4000204h - WAITCNT - Waitstate Control (R/W) must be set to 3,1
 
+By default GBADoom sets:
 GBADoom/source/i_system_gba.cpp
 #define REG_WAITCNT	*((vu16 *)(0x4000204))
 //Set gamepak wait states and prefetch.
-REG_WAITCNT = 0x46DA;
+REG_WAITCNT = 0x46DA; // 0100011011011010
 
+Fix to run on openagbfirm:
+REG_WAITCNT = 0xB645; // 1011011001000101
+                      
+
+Note: bits are read right to left:
+REG_WAITCNT = 0x46DA; // 0100011011011010
+REG_WAITCNT = 0xB645; // 1011011001000101
+                      // 15.............0
+
+https://problemkaputt.de/gbatek-gba-system-control.htm
+4000204h - WAITCNT - Waitstate Control (R/W)
+This register is used to configure game pak access timings. The game pak ROM is mirrored to three address regions at 08000000h, 0A000000h, and 0C000000h, these areas are called Wait State 0-2. Different access timings may be assigned to each area (this might be useful in case that a game pak contains several ROM chips with different access times each).
+
+  Bit   Expl.
+  0-1   SRAM Wait Control          (0..3 = 4,3,2,8 cycles)
+  2-3   Wait State 0 First Access  (0..3 = 4,3,2,8 cycles)
+  4     Wait State 0 Second Access (0..1 = 2,1 cycles)
+  5-6   Wait State 1 First Access  (0..3 = 4,3,2,8 cycles)
+  7     Wait State 1 Second Access (0..1 = 4,1 cycles; unlike above WS0)
+  8-9   Wait State 2 First Access  (0..3 = 4,3,2,8 cycles)
+  10    Wait State 2 Second Access (0..1 = 8,1 cycles; unlike above WS0,WS1)
+  11-12 PHI Terminal Output        (0..3 = Disable, 4.19MHz, 8.38MHz, 16.78MHz)
+  13    Not used
+  14    Game Pak Prefetch Buffer (Pipe) (0=Disable, 1=Enable)
+  15    Game Pak Type Flag  (Read Only) (0=GBA, 1=CGB) (IN35 signal)
+  16-31 Not used
 
 
 
