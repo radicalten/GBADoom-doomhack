@@ -28,8 +28,8 @@ Or use a Hexeditor such as Hex Fiend, search for 4000204 and modify and replace 
 Note: bits are read to right to left: 0x46DA DoomGBA 2,1 default, 0xB645 openagbfirm profi200 3,1 recommendation, 0x4317 GBAtek 3,1 recommendation, 0x45B7 all 3,1 WarioWare GBAtek
 REG_WAITCNT = 0x46DA; // 0100011011011010 0-1 bit = 10 (0..3 = 4,3,2,8 cycles) = 2 cycles, position 3. 2-3 bit 00 = 2 cycles, position 3, 
 REG_WAITCNT = 0xB645; // 1011011001000101 0-1 bit = 01 (0..3 = 4,3,2,8 cycles) = 3 cycles, position 2. 2-3 bit 01 (0..3 = 4,3,2,8 cycles) = 3 cycles, position 2
-REG_WAITCNT = 0x4317; // 0100001100010111 0-1 bit = 01 (0..3 = 4,3,2,8 cycles) = 3 cycles, position 2. 2-3 bit 01 (0..3 = 4,3,2,8 cycles) = 3 cycles, position 2
-REG_WAITCNT = 0x45B7; // 0100010110110111
+REG_WAITCNT = 0x4317; // 0100001100010111 0-1 bit = 11 (0..3 = 4,3,2,8 cycles) = 8 cycles, position 2. 2-3 bit 01 (0..3 = 4,3,2,8 cycles) = 3 cycles, position 2, 4 bit 1 cycle, position 2
+REG_WAITCNT = 0x45B7; // 0100010110110111 0-1 bit = 11 (0..3 = 4,3,2,8 cycles) = 8 cycles, position 2. 2-3 bit 01 (0..3 = 4,3,2,8 cycles) = 3 cycles, position 2, 4 bit 1 cycle, position 2
                       // 15.............0
 
 
